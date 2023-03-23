@@ -11,8 +11,12 @@ struct data {
   int dp[4];
   int cursorPos;
   int encoder_scroll_value;
+  int counter;
+  int period;
+  int prev_time;
   float threshold;
   float average_freq;
+  float display_freq;
   // etc, etc....
 };
 
@@ -55,10 +59,21 @@ void setup() {
   lcd.print("HertzLikeHeck :)");
   // set cursor to column 0, line 1
   lcd.setCursor(0, 1);
+
+  data.prev_time = millis();
 }
 
 void new_cycle() {
   // This runs when a rising edge square wave arrives. What should happen?
+  data.period = millis() - data.prev_time;
+  data.average_freq = (data.period + (data.counter * data.average_freq)) / data.counter + 1;
+  data.counter++;
+  data.prev_time = millis();
+  if (data.counter > 23) {
+    data.display_freq = data.average_freq;
+    data.counter = 0;
+    data.average_freq = 0;
+  }
 }
 
 int sanity_check() {
@@ -162,6 +177,21 @@ void loop() {
   // Menu loops:
   if (data.menu == 0) {
     // main window stuff
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Freq = ");
+    lcd.setCursor(7, 0);
+    char string[5];
+    sprintf(string, "%.2f", data.display_freq);
+    // probably needs a  for loop    
+    lcd.print(string);
+
+    lcd.setCursor(0, 1);
+    lcd.print("Thresh = ");
+    lcd.setCursor(9, 1);
+    sprintf(string, "%.2f", data.threshold);
+    // probably needs a  for loop    
+    lcd.print(string);
   }
   
   else if (data.menu == 1) {
