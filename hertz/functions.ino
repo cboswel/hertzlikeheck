@@ -1,4 +1,3 @@
-#include <LiquidCrystal.h>
 #include "hertz.h"
 
 void new_cycle() {
@@ -30,6 +29,10 @@ void check_encoder() {
     data.encoder_scroll_value = digitalRead(encoder_scroll);
     data.encoder_right = 1;
    }
+}
+
+void float_to_string() {
+  sprintf(data.buffer, "%.2f", data.display_freq);
 }
 
 void menu_change() {

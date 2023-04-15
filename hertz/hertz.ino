@@ -56,17 +56,12 @@ void loop() {
     lcd.setCursor(0, 0);
     lcd.print("Freq = ");
     lcd.setCursor(7, 0);
-    char string[5];
-    sprintf(string, "%.2f", data.display_freq);
-    // probably needs a  for loop    
-    lcd.print(string);
+    lcd.print(float_to_string(data.display_freq));
 
     lcd.setCursor(0, 1);
     lcd.print("Thresh = ");
     lcd.setCursor(9, 1);
-    sprintf(string, "%.2f", data.threshold);
-    // probably needs a  for loop    
-    lcd.print(string);
+    lcd.print(float_to_string(data.display_freq));
   }
   
   else if (data.menu == 1) {
