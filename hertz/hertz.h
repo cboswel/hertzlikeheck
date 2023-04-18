@@ -1,6 +1,6 @@
 #ifndef HERTZ_H
 #define HERTZ_H
-#include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 
 struct Data {
   bool alarm;
@@ -12,10 +12,13 @@ struct Data {
   int next_menu;
   int dp[4];
   int cursorPos;
-  int encoder_scroll_value;
   int counter;
   int period;
   int prev_time;
+  int encoder_a;
+  int encoder_b;
+  int prev_encoder_a;
+  int last_click;
   float threshold;
   float average_freq;
   float display_freq;
@@ -24,14 +27,15 @@ struct Data {
 
 static int mux = 6;
 static int display_message = 5;
-static int encoder_click = 3;
-static int encoder_scroll = 4;
-static int sq_wave = 2;
-static int lcdRegSel = 11;
-static int lcdEnable = 12;
+static int encoder_click = 12;
+static int encoder_a = 2;
+static int encoder_b = 11;
+static int sq_wave = 3;
+static int lcdsda = 4;
+static int lcdscl = 5;
 
-extern struct Data data;
-extern LiquidCrystal lcd(lcdRegSel, lcdEnable, 7, 8, 9, 10);
+//extern struct Data data;
+extern LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 void new_cycle();
 int sanity_check();

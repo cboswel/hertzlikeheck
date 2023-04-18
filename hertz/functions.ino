@@ -21,13 +21,13 @@ int sanity_check() {
 
 void check_encoder() {
    // check whether encoder was moved, and queue up a moved flag if so
-   if (digitalRead(encoder_scroll) < data.encoder_scroll_value) {
-    data.encoder_scroll_value = digitalRead(encoder_scroll);
-    data.encoder_left = 1;
+   if (digitalRead(encoder_b) == 1) {
+      data.encoder_left = 1;
+      delay(100);
    }
-   else if (digitalRead(encoder_scroll) > data.encoder_scroll_value) {
-    data.encoder_scroll_value = digitalRead(encoder_scroll);
-    data.encoder_right = 1;
+   else {
+      data.encoder_right = 1;
+      delay(100);
    }
 }
 
@@ -45,8 +45,10 @@ void menu_change() {
    * Clicking the encoder initialises the relevant display function and then
    * increments data.menu_state so the next menu is selected on next click
    */
-   
-  open_menu(data.next_menu);
+   if (millis() - data.last_click > 750 && digitalRead(encoder_click) == 0) {
+      open_menu(data.next_menu);
+   }
+   data.last_click = millis();
 }
 
 void open_menu(int next) {

@@ -1,17 +1,6 @@
-#include <LiquidCrystal.h>
 #include "hertz.h"
 
-  // map pins
-  int mux = 6;
-  int display_message = 5;
-  int encoder_click = 3;
-  int encoder_scroll = 4;
-  int sq_wave = 2;
-  int lcdRegSel = 11;
-  int lcdEnable = 12;
-
-  struct data data; // initialise data struct
-  LiquidCrystal lcd(lcdRegSel, lcdEnable, 7, 8, 9, 10);
+struct Data data;
 
 void setup() {
   // put your setup code here, to run once:
@@ -19,36 +8,46 @@ void setup() {
   // set I/O
   pinMode(mux, OUTPUT);
   pinMode(display_message, OUTPUT);
-  pinMode(lcdRegSel, OUTPUT);
-  pinMode(lcdEnable, OUTPUT);
-  pinMode(lcdRegSel, OUTPUT);
-  pinMode(7, OUTPUT);
-  pinMode(8, OUTPUT);
-  pinMode(9, OUTPUT);
-  pinMode(10, OUTPUT);
-  pinMode(encoder_click, INPUT);
-  pinMode(encoder_scroll, INPUT);
+  pinMode(lcdsda, OUTPUT);
+  pinMode(lcdscl, OUTPUT);
+  pinMode(encoder_click, INPUT_PULLUP);
+  pinMode(encoder_a, INPUT_PULLUP);
+  pinMode(encoder_b, INPUT_PULLUP);
   pinMode(sq_wave, INPUT);
 
   // setup interrupts
   attachInterrupt(digitalPinToInterrupt(sq_wave), new_cycle, RISING);
-  attachInterrupt(digitalPinToInterrupt(encoder_click), menu_change, RISING);
+  attachInterrupt(digitalPinToInterrupt(encoder_a), check_encoder, FALLING);
 
   // set up the LCD's number of columns and rows:
-  lcd.begin(16, 2);
+  lcd.init();
+  lcd.backlight();
+
   // Print a message to the LCD.
   lcd.print("HertzLikeHeck :)");
   // set cursor to column 0, line 1
   lcd.setCursor(0, 1);
-
+  data.prev_encoder_a = millis();
+  data.last_click = millis();
   data.prev_time = millis();
+  data.display_freq = 60;
+  data.threshold = 61;
+  Serial.begin(9600);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-
-  check_encoder();
-  
+/**
+  if (data.encoder_left == 1) {
+    Serial.println(digitalRead(encoder_a));
+    data.encoder_left = 0;
+  }
+  if (data.encoder_right == 1) {
+    Serial.println("Right!");
+    data.encoder_right = 0;
+  }
+**/
+  menu_change();
   // Menu loops:
   if (data.menu == 0) {
     // main window stuff
@@ -56,12 +55,14 @@ void loop() {
     lcd.setCursor(0, 0);
     lcd.print("Freq = ");
     lcd.setCursor(7, 0);
-    lcd.print(float_to_string(data.display_freq));
+    float_to_string();
+    lcd.print(data.buffer);
 
     lcd.setCursor(0, 1);
     lcd.print("Thresh = ");
     lcd.setCursor(9, 1);
-    lcd.print(float_to_string(data.display_freq));
+    float_to_string();
+    lcd.print(data.buffer);
   }
   
   else if (data.menu == 1) {

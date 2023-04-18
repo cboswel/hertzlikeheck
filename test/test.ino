@@ -6,6 +6,10 @@ struct Data data;
 test(float_to_string) {
 	data.display_freq = 12.34567;
 	float_to_string();
+	for(int i=0; i<5; i++) {
+        	char c = char(data.buffer[i]);
+        	Serial.println(c);
+    	}
 	assertEqual(data.buffer[0], (char) '1');
 	assertEqual(data.buffer[1], (char) '2');
 	assertEqual(data.buffer[2], (char) '.');
@@ -15,14 +19,14 @@ test(float_to_string) {
 }
 
 test(frequency_calc) {
-	long freq = random(49.5, 50.5);
+	double freq = random(4950, 5050) / 100.0;
 	int period_us = 1000000 / freq;
 	for (int i=0; i<100; i++) {
 		new_cycle();
 		delayMicroseconds(period_us);
 	}
-	long average_freq = data.average_freq;
-	long error = 0.005;
+	double average_freq = data.display_freq;
+	double error = 0.005;
 	assertNear(average_freq, freq, error);
 }
 
@@ -32,6 +36,9 @@ test(frequency_calc) {
 void setup() {
 	Serial.begin(115200);
 	randomSeed(analogRead(0)); // pin 0 must be floating for this to work well
+	lcd.init();
+	lcd.backlight();
+	lcd.print("HertzLikeHeck :)");
 }
 
 void loop() {
