@@ -2,14 +2,14 @@
 
 void new_cycle() {
   // This runs when a rising edge square wave arrives. What should happen?
-  data.period = millis() - data.prev_time;
-  data.average_freq = (data.period + (data.counter * data.average_freq)) / data.counter + 1;
-  data.counter++;
-  data.prev_time = millis();
-  if (data.counter > 23) {
-    data.display_freq = data.average_freq;
-    data.counter = 0;
-    data.average_freq = 0;
+  period = millis() - prev_time;
+  average_freq = (period + (counter * average_freq)) / counter + 1;
+  counter++;
+  prev_time = millis();
+  if (counter > 23) {
+    display_freq = average_freq;
+    counter = 0;
+    average_freq = 0;
   }
 }
 
@@ -22,17 +22,17 @@ int sanity_check() {
 void check_encoder() {
    // check whether encoder was moved, and queue up a moved flag if so
    if (digitalRead(encoder_b) == 1) {
-      data.encoder_left = 1;
+      encoder_left = 1;
       delay(100);
    }
    else {
-      data.encoder_right = 1;
+      encoder_right = 1;
       delay(100);
    }
 }
 
 void float_to_string() {
-  sprintf(data.buffer, "%.2f", data.display_freq);
+  sprintf(buffer, "%.2f", display_freq);
 }
 
 void menu_change() {
@@ -45,17 +45,17 @@ void menu_change() {
    * Clicking the encoder initialises the relevant display function and then
    * increments data.menu_state so the next menu is selected on next click
    */
-   if (millis() - data.last_click > 750 && digitalRead(encoder_click) == 0) {
-      open_menu(data.next_menu);
+   if (millis() - last_click > 750 && digitalRead(encoder_click) == 0) {
+      open_menu(next_menu);
    }
-   data.last_click = millis();
+   last_click = millis();
 }
 
 void open_menu(int next) {
   // Initialise the appropriate menu screen and set data.menu so the right main loop starts.
   
    if (next == 1) {
-    data.menu = 1;
+    menu = 1;
     // Set Threshold or Toggle Calibration?
     lcd.clear();
     lcd.setCursor(0, 0);
@@ -66,48 +66,48 @@ void open_menu(int next) {
 
    else if (next == 2) {
     // Select Threshold Digit
-    data.menu = 2;
-    data.next_menu = 3;
+    menu = 2;
+    next_menu = 3;
     lcd.clear();
     
     // First, split current threshold into digits
-    float thresh = data.threshold;
+    float thresh = threshold;
     char string[5]; 
     sprintf(string, "%.2f", thresh);
-    data.dp[0] = string[0]; // tens
-    data.dp[1] = string[1]; // units
-    data.dp[2] = string[3]; // 1 dp (string[2] is the decimal point??)
-    data.dp[3] = string[4]; // 2 dp
+    dp[0] = string[0]; // tens
+    dp[1] = string[1]; // units
+    dp[2] = string[3]; // 1 dp (string[2] is the decimal point??)
+    dp[3] = string[4]; // 2 dp
 
     // Then print to display
     lcd.setCursor(3, 0);
     lcd.print("Threshold");
     lcd.setCursor(5, 1);
-    lcd.print(data.dp[0]);
+    lcd.print(dp[0]);
     lcd.setCursor(7, 1);
-    lcd.print(data.dp[1]);
+    lcd.print(dp[1]);
     lcd.print(". ");
-    lcd.print(data.dp[2]);
+    lcd.print(dp[2]);
     lcd.setCursor(12, 1);
-    lcd.print(data.dp[3]);
+    lcd.print(dp[3]);
     lcd.setCursor(5, 1);
    }
 
    else if (next == 3) {
     // Set Threshold
-    data.menu = 3;
-    data.next_menu = 0;
+    menu = 3;
+    next_menu = 0;
    }
 
    else if (next == 4) {
     // Toggle Calibration mode
-    data.calibration_mode = !data.calibration_mode;
-    digitalWrite(mux, data.calibration_mode);
-    data.menu = 3;
-    data.next_menu = 0;
+    calibration_mode = !calibration_mode;
+    digitalWrite(mux, calibration_mode);
+    menu = 3;
+    next_menu = 0;
    }
 
    else {
-    data.next_menu == 1;
+    next_menu == 1;
    }
 }
